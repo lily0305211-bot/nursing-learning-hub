@@ -1,0 +1,1008 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>慈濟五專護理科學習平台｜114級</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#f3f6fa;color:#26384b;
+ font-family:"Microsoft JhengHei",sans-serif
+}
+header{
+ background:#183653;color:white;padding:19px 6%;
+ display:flex;justify-content:space-between;
+ align-items:center;flex-wrap:wrap;gap:12px
+}
+header h2{margin:0;font-size:20px}
+nav button{
+ background:transparent;color:white;border:1px solid #9bb1c5;
+ border-radius:7px;padding:9px 12px;margin:3px;cursor:pointer
+}
+main{max-width:1150px;margin:30px auto;padding:0 18px}
+.page{display:none}
+.page.active{display:block}
+.hero{
+ background:linear-gradient(130deg,#183653,#397c9b);
+ color:white;text-align:center;padding:40px 20px;
+ border-radius:17px;margin-bottom:25px
+}
+.hero h1{margin:0 0 12px;font-size:29px}
+.hero p{line-height:1.8}
+.grid{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+ gap:15px
+}
+.card{
+ background:white;border:1px solid #e0e7ed;
+ border-radius:13px;padding:19px;
+ box-shadow:0 3px 12px #1836530a
+}
+.grade-card,.subject-card{cursor:pointer;transition:.2s}
+.grade-card:hover,.subject-card:hover{
+ transform:translateY(-3px);border-color:#397c9b
+}
+.grade-card{text-align:center}
+.grade-number{font-size:35px;color:#397c9b;font-weight:bold}
+.tag{
+ display:inline-block;background:#e8f1f7;color:#286487;
+ padding:5px 9px;border-radius:20px;font-size:12px
+}
+.muted{color:#778696;line-height:1.8}
+.primary{
+ background:#28658d;color:white;border:0;
+ border-radius:8px;padding:11px 18px;cursor:pointer
+}
+.secondary{
+ background:#e8eef4;color:#29465f;border:0;
+ border-radius:8px;padding:10px 15px;cursor:pointer
+}
+.back{margin-bottom:20px}
+.search,.select{
+ width:100%;padding:12px;border:1px solid #d5dfe8;
+ border-radius:8px;font-size:15px;margin:10px 0 17px;
+ background:white
+}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}
+.tabs button{
+ border:1px solid #d7e0e8;background:white;
+ border-radius:8px;padding:10px 15px;cursor:pointer
+}
+.tabs button.active{background:#28658d;color:white}
+.lesson{
+ background:#f5f8fb;border-left:4px solid #397c9b;
+ border-radius:6px;padding:15px 18px;margin:12px 0;
+ line-height:1.85
+}
+.lesson h3{margin:0 0 8px}
+.option{
+ display:block;width:100%;text-align:left;
+ background:#f3f6f9;border:1px solid #dce4eb;
+ border-radius:8px;padding:12px;margin:8px 0;
+ cursor:pointer;color:#26384b
+}
+.option.selected{border:2px solid #397c9b;background:#e5f1f8}
+.result{background:#edf6f0;border-radius:9px;padding:16px;margin:15px 0}
+.stat{font-size:28px;font-weight:bold;color:#28658d}
+.small{font-size:13px;color:#778696}
+footer{text-align:center;color:#8794a1;padding:35px}
+</style>
+</head>
+<body>
+
+<header>
+ <h2>✚ 慈濟五專護理科｜114級</h2>
+ <nav>
+  <button onclick="home()">首頁</button>
+  <button onclick="showRecords()">學習紀錄</button>
+  <button onclick="showMistakes()">錯題本</button>
+ </nav>
+</header>
+
+<main>
+
+<section id="homePage" class="page active">
+ <div class="hero">
+  <h1>慈濟五專護理科學習平台</h1>
+  <p>114學年度入學｜五年完整課程架構</p>
+  <p>選擇年級、學期及科目，開始學習。</p>
+ </div>
+ <h2>📚 選擇年級</h2>
+ <div class="grid" id="gradeList"></div>
+ <div class="card" style="margin-top:20px">
+  <h3>114級課程資訊</h3>
+  <p>畢業最低學分：220學分</p>
+  <p>必修：195學分｜選修：25學分</p>
+  <p class="muted">選修課程依當學期實際開課為準。</p>
+ </div>
+</section>
+
+<section id="subjectPage" class="page">
+ <button class="secondary back" onclick="home()">← 返回首頁</button>
+ <h1 id="gradeTitle"></h1>
+ <div class="tabs">
+  <button id="firstTab" class="active" onclick="setSemester(1)">上學期</button>
+  <button id="secondTab" onclick="setSemester(2)">下學期</button>
+  <button id="electiveTab" onclick="setSemester(3)">選修科目</button>
+ </div>
+ <input id="search" class="search" placeholder="搜尋科目..." oninput="renderSubjects()">
+ <div id="subjectList"></div>
+</section>
+
+<section id="coursePage" class="page">
+ <button class="secondary back" onclick="backSubjects()">← 返回科目列表</button>
+ <div class="hero">
+  <span class="tag" id="courseCategory"></span>
+  <h1 id="courseTitle"></h1>
+  <p id="courseMeta"></p>
+ </div>
+ <h2>📖 課程介紹</h2>
+ <div class="card" id="courseIntro"></div>
+ <h2>📚 課程大綱</h2>
+ <div id="outline"></div>
+ <h2>🎯 學習目標</h2>
+ <div class="card" id="goals"></div>
+ <h2>📝 課後測驗</h2>
+ <p class="muted">使用題庫測試自己對課程的理解。</p>
+ <button class="primary" onclick="startQuiz()">開始測驗</button>
+</section>
+
+<section id="quizPage" class="page">
+ <button class="secondary back" onclick="backCourse()">← 返回課程</button>
+ <h1>自主測驗</h1>
+ <p id="quizInfo" class="muted"></p>
+ <div id="quizContent"></div>
+ <button class="primary" id="submitButton" onclick="submitQuiz()">提交答案</button>
+ <div id="quizResult"></div>
+</section>
+
+<section id="recordPage" class="page">
+ <h1>📊 學習紀錄</h1>
+ <div class="grid">
+  <div class="card"><p>測驗次數</p><div class="stat" id="recordCount">0</div></div>
+  <div class="card"><p>平均分數</p><div class="stat" id="recordAverage">0</div></div>
+  <div class="card"><p>錯題數</p><div class="stat" id="recordMistakes">0</div></div>
+ </div>
+ <h2>測驗歷史</h2>
+ <div id="recordList"></div>
+</section>
+
+<section id="mistakePage" class="page">
+ <h1>📕 錯題本</h1>
+ <p class="muted">複習曾經答錯的題目。</p>
+ <div id="mistakeList"></div>
+</section>
+
+</main>
+
+<footer>慈濟五專護理科學習平台｜114級課程版本</footer>
+
+<script>
+
+// =========================================
+// 一、114級課程資料
+// semester：1=上學期、2=下學期
+// category：一般、專業基礎、專業核心、選修
+// =========================================
+
+const courses = [
+
+ // 一年級
+ {y:1,s:1,n:"國文(一)",c:4,t:"一般必修"},
+ {y:1,s:2,n:"國文(二)",c:4,t:"一般必修"},
+ {y:1,s:1,n:"英文(一)",c:3,t:"一般必修"},
+ {y:1,s:2,n:"英文(二)",c:3,t:"一般必修"},
+ {y:1,s:1,n:"公民與社會",c:2,t:"一般必修"},
+ {y:1,s:1,n:"本土語文",c:2,t:"一般必修"},
+ {y:1,s:1,n:"數學(一)",c:3,t:"一般必修"},
+ {y:1,s:2,n:"數學(二)",c:3,t:"一般必修"},
+ {y:1,s:1,n:"化學(一)",c:2,t:"一般必修"},
+ {y:1,s:2,n:"化學(二)",c:2,t:"一般必修"},
+ {y:1,s:1,n:"生物(一)",c:2,t:"一般必修"},
+ {y:1,s:2,n:"生物(二)",c:2,t:"一般必修"},
+ {y:1,s:1,n:"地理",c:2,t:"一般必修"},
+ {y:1,s:1,n:"美術(一)",c:1,t:"一般必修"},
+ {y:1,s:2,n:"美術(二)",c:1,t:"一般必修"},
+ {y:1,s:1,n:"音樂(一)",c:1,t:"一般必修"},
+ {y:1,s:2,n:"音樂(二)",c:1,t:"一般必修"},
+ {y:1,s:1,n:"慈濟人文",c:2,t:"一般必修"},
+ {y:1,s:1,n:"健康與護理",c:2,t:"一般必修"},
+ {y:1,s:1,n:"體育(一)",c:2,t:"一般必修"},
+ {y:1,s:2,n:"體育(二)",c:2,t:"一般必修"},
+ {y:1,s:1,n:"全民國防教育(一)",c:1,t:"一般必修"},
+ {y:1,s:2,n:"全民國防教育(二)",c:1,t:"一般必修"},
+ {y:1,s:1,n:"心理學(一)",c:1,t:"專業基礎"},
+ {y:1,s:2,n:"心理學(二)",c:1,t:"專業基礎"},
+ {y:1,s:1,n:"解剖學",c:3,t:"專業基礎"},
+ {y:1,s:1,n:"解剖學實驗",c:1,t:"專業基礎"},
+ {y:1,s:2,n:"護理導論",c:2,t:"專業核心"},
+
+ // 二年級
+ {y:2,s:1,n:"國文(三)",c:3,t:"一般必修"},
+ {y:2,s:2,n:"國文(四)",c:3,t:"一般必修"},
+ {y:2,s:1,n:"英文(三)",c:3,t:"一般必修"},
+ {y:2,s:2,n:"英文(四)",c:3,t:"一般必修"},
+ {y:2,s:1,n:"資訊科技",c:2,t:"一般必修"},
+ {y:2,s:1,n:"歷史",c:2,t:"一般必修"},
+ {y:2,s:2,n:"物理",c:2,t:"一般必修"},
+ {y:2,s:2,n:"法律與生活",c:2,t:"一般必修"},
+ {y:2,s:1,n:"體育(三)",c:2,t:"一般必修"},
+ {y:2,s:2,n:"體育(四)",c:2,t:"一般必修"},
+
+ {y:2,s:1,n:"生理學",c:3,t:"專業基礎"},
+ {y:2,s:1,n:"生理學實驗",c:1,t:"專業基礎"},
+ {y:2,s:1,n:"營養學",c:2,t:"專業基礎"},
+ {y:2,s:1,n:"藥物學(一)",c:2,t:"專業基礎"},
+ {y:2,s:2,n:"藥物學(二)",c:2,t:"專業基礎"},
+ {y:2,s:2,n:"微生物學",c:2,t:"專業基礎"},
+ {y:2,s:2,n:"微生物學實驗",c:1,t:"專業基礎"},
+ {y:2,s:2,n:"病理學",c:2,t:"專業基礎"},
+
+ {y:2,s:1,n:"基本護理學(一)",c:3,t:"專業核心"},
+ {y:2,s:1,n:"基本護理學實驗(一)",c:1,t:"專業核心"},
+ {y:2,s:2,n:"基本護理學(二)",c:3,t:"專業核心"},
+ {y:2,s:2,n:"基本護理學實驗(二)",c:1,t:"專業核心"},
+
+ // 三年級
+ {y:3,s:1,n:"國文(五)",c:2,t:"一般必修"},
+ {y:3,s:2,n:"國文(六)",c:2,t:"一般必修"},
+ {y:3,s:1,n:"英文(五)",c:2,t:"一般必修"},
+ {y:3,s:2,n:"英文(六)",c:2,t:"一般必修"},
+ {y:3,s:1,n:"社會科學概論",c:2,t:"一般必修"},
+ {y:3,s:1,n:"體育(五)",c:2,t:"一般必修"},
+ {y:3,s:2,n:"體育(六)",c:0,t:"一般必修"},
+
+ {y:3,s:1,n:"人類發展學",c:2,t:"專業基礎"},
+
+ {y:3,s:1,n:"生物統計概論",c:2,t:"專業核心"},
+ {y:3,s:1,n:"臨床情境英文",c:2,t:"專業核心"},
+ {y:3,s:1,n:"內外科護理學(一)",c:4,t:"專業核心"},
+ {y:3,s:2,n:"內外科護理學(二)",c:4,t:"專業核心"},
+ {y:3,s:2,n:"內外科護理學實驗",c:2,t:"專業核心"},
+ {y:3,s:1,n:"產科護理學(一)",c:2,t:"專業核心"},
+ {y:3,s:2,n:"身體評估",c:2,t:"專業核心"},
+ {y:3,s:2,n:"身體評估實驗",c:1,t:"專業核心"},
+ {y:3,s:1,n:"兒科護理學(一)",c:2,t:"專業核心"},
+ {y:3,s:1,n:"精神科護理學(一)",c:2,t:"專業核心"},
+ {y:3,s:1,n:"社區衛生護理學(一)",c:2,t:"專業核心"},
+ {y:3,s:1,n:"基本護理學實習",c:3,t:"實習"},
+
+ // 四年級
+ {y:4,s:1,n:"內外科護理學(三)",c:3,t:"專業核心"},
+ {y:4,s:1,n:"產科護理學(二)",c:2,t:"專業核心"},
+ {y:4,s:1,n:"產科護理學實驗",c:1,t:"專業核心"},
+ {y:4,s:1,n:"兒科護理學(二)",c:2,t:"專業核心"},
+ {y:4,s:1,n:"兒科護理學實驗",c:1,t:"專業核心"},
+ {y:4,s:1,n:"精神科護理學(二)",c:2,t:"專業核心"},
+ {y:4,s:1,n:"社區衛生護理學(二)",c:2,t:"專業核心"},
+ {y:4,s:1,n:"老人護理學",c:2,t:"專業核心"},
+ {y:4,s:1,n:"長期照護概論",c:2,t:"專業核心"},
+ {y:4,s:2,n:"衛生教育",c:2,t:"專業核心"},
+ {y:4,s:2,n:"護理綜合實作",c:1,t:"專業核心"},
+
+ // 五年級
+ {y:5,s:1,n:"護理行政",c:2,t:"專業核心"},
+ {y:5,s:1,n:"護理綜合研討(一)",c:2,t:"專業核心"},
+ {y:5,s:1,n:"護理綜合研討(二)",c:2,t:"專業核心"}
+];
+
+// =========================================
+// 二、臨床實習：四、五年級分組
+// =========================================
+
+const practicums=[
+ {y:4,s:1,n:"內外科護理學實習(一)",c:3,t:"實習",group:"A組"},
+ {y:5,s:1,n:"內外科護理學實習(一)",c:3,t:"實習",group:"B組"},
+ {y:4,s:1,n:"內外科護理學實習(二)",c:3,t:"實習",group:"A組"},
+ {y:5,s:1,n:"內外科護理學實習(二)",c:3,t:"實習",group:"B組"},
+ {y:4,s:1,n:"產科護理學實習",c:3,t:"實習",group:"B組"},
+ {y:5,s:1,n:"產科護理學實習",c:3,t:"實習",group:"A組"},
+ {y:4,s:1,n:"兒科護理學實習",c:3,t:"實習",group:"B組"},
+ {y:5,s:1,n:"兒科護理學實習",c:3,t:"實習",group:"A組"},
+ {y:4,s:1,n:"社區衛生護理學實習",c:3,t:"實習",group:"A組"},
+ {y:5,s:1,n:"社區衛生護理學實習",c:3,t:"實習",group:"B組"},
+ {y:4,s:1,n:"精神科護理學實習",c:3,t:"實習",group:"A組"},
+ {y:5,s:1,n:"精神科護理學實習",c:3,t:"實習",group:"B組"},
+ {y:4,s:1,n:"臨床選習(一)",c:3,t:"實習",group:"B組"},
+ {y:5,s:1,n:"臨床選習(一)",c:3,t:"實習",group:"A組"},
+ {y:4,s:1,n:"臨床選習(二)",c:3,t:"實習",group:"B組"},
+ {y:5,s:1,n:"臨床選習(二)",c:3,t:"實習",group:"A組"}
+];
+
+// =========================================
+// 三、選修課程
+// 選修實際開課依學校公告為準
+// =========================================
+
+const electives=[
+ {y:2,s:1,n:"護理關懷",c:2},
+ {y:2,s:1,n:"醫護台語",c:2},
+ {y:2,s:1,n:"醫護英文術語",c:2},
+ {y:2,s:1,n:"健康促進理論與實務",c:2},
+ {y:2,s:1,n:"民俗調理業相關法令",c:1},
+ {y:2,s:1,n:"腳底按摩基礎理論",c:1},
+ {y:2,s:2,n:"藝術治療",c:2},
+ {y:2,s:2,n:"營養學實驗",c:2},
+ {y:2,s:2,n:"自我探索",c:2},
+ {y:2,s:2,n:"壓力管理",c:2},
+ {y:2,s:2,n:"老人關懷與服務學習",c:2},
+ {y:2,s:2,n:"腳底按摩基本手法",c:1},
+ {y:2,s:2,n:"腳底按摩調理手法",c:2},
+ {y:2,s:2,n:"照顧服務員培訓",c:4},
+ {y:2,s:2,n:"照顧服務員實習",c:1},
+
+ {y:3,s:1,n:"護理與信仰",c:2},
+ {y:3,s:1,n:"臨床藥理學",c:2},
+ {y:3,s:1,n:"臨床檢驗報告判讀",c:2},
+ {y:3,s:1,n:"疾病營養學",c:2},
+ {y:3,s:1,n:"輻射健康照護",c:2},
+ {y:3,s:1,n:"中醫學概論",c:2},
+ {y:3,s:1,n:"中藥學概論",c:1},
+ {y:3,s:1,n:"針灸護理學",c:1},
+ {y:3,s:1,n:"腳底按摩從業實務",c:2},
+
+ {y:4,s:1,n:"銀髮睿智實作",c:2},
+ {y:4,s:1,n:"寄生蟲學",c:2},
+
+ {y:5,s:1,n:"基礎醫學綜合研討",c:2}
+];
+
+// =========================================
+// 四、課程大綱資料
+// =========================================
+
+const outlineData={
+
+"生理學":[
+ ["細胞生理","細胞膜、細胞內液、細胞外液、物質運輸及滲透作用。"],
+ ["神經生理","神經元、靜止膜電位、動作電位、突觸及神經傳導物質。"],
+ ["肌肉生理","骨骼肌、心肌、平滑肌、肌節及肌肉收縮機制。"],
+ ["血液生理","紅血球、白血球、血小板、血紅素及凝血機制。"],
+ ["循環生理","心臟週期、心輸出量、血壓及血液循環調節。"],
+ ["呼吸生理","肺通氣、氣體交換、氧氣運輸及二氧化碳運輸。"],
+ ["消化生理","消化道功能、消化液、醣類蛋白質及脂質吸收。"],
+ ["腎臟生理","腎元、腎絲球過濾、再吸收、分泌及尿液形成。"],
+ ["內分泌生理","荷爾蒙、內分泌腺及負回饋調節。"],
+ ["生殖生理","月經週期、受精、妊娠及生殖功能。"]
+],
+
+"生理學實驗":[
+ ["實驗室安全","實驗室規範、器材使用及安全注意事項。"],
+ ["細胞與滲透作用","觀察不同溶液對細胞的影響。"],
+ ["血液實驗","認識血球、血型及相關檢查概念。"],
+ ["心血管實驗","觀察脈搏、血壓及心血管反應。"],
+ ["呼吸實驗","認識呼吸頻率及肺功能基本概念。"],
+ ["實驗結果分析","整理數據、繪圖及解釋實驗結果。"]
+],
+
+"營養學":[
+ ["營養基本概念","六大類食物、熱量、營養素及均衡飲食。"],
+ ["醣類","單醣、雙醣、多醣、功能及食物來源。"],
+ ["蛋白質","胺基酸、蛋白質合成、功能及需求量。"],
+ ["脂質","脂肪酸、膽固醇、脂質功能及代謝。"],
+ ["維生素","脂溶性維生素與水溶性維生素。"],
+ ["礦物質","鈣、鐵、鈉、鉀及其他礦物質。"],
+ ["生命期營養","嬰幼兒、兒童、青少年、孕婦及老年人營養。"],
+ ["營養評估","BMI、飲食紀錄及營養狀態評估。"]
+],
+
+"藥物學(一)":[
+ ["藥理學基本概念","藥物來源、命名、劑型及給藥途徑。"],
+ ["藥物動力學","吸收、分布、代謝及排泄（ADME）。"],
+ ["藥效學","藥物受體、作用機轉、療效及副作用。"],
+ ["自主神經系統","交感神經及副交感神經的藥物作用。"],
+ ["膽鹼性藥物","膽鹼性受體及相關藥物。"],
+ ["腎上腺素性藥物","腎上腺素性受體及相關藥物。"],
+ ["用藥安全","藥物交互作用、禁忌及不良反應。"]
+],
+
+"藥物學(二)":[
+ ["心血管藥物","降血壓藥、利尿劑及心臟相關藥物。"],
+ ["抗感染藥物","抗生素、抗病毒及抗黴菌藥物。"],
+ ["中樞神經藥物","鎮靜、止痛及神經系統相關藥物。"],
+ ["內分泌藥物","胰島素、降血糖及甲狀腺相關藥物。"],
+ ["呼吸系統藥物","支氣管擴張劑及呼吸道相關藥物。"],
+ ["消化系統藥物","制酸劑、止吐及腸胃道相關藥物。"],
+ ["護理給藥評估","藥物作用、禁忌、觀察及病人衛教。"]
+],
+
+"微生物學":[
+ ["微生物概論","細菌、病毒、真菌及寄生蟲的基本概念。"],
+ ["細菌學","細菌構造、分類、生長及繁殖。"],
+ ["病毒學","病毒構造、複製及傳播途徑。"],
+ ["真菌學","真菌種類、感染及預防。"],
+ ["感染與免疫","感染途徑、宿主防禦及免疫反應。"],
+ ["消毒與滅菌","消毒、滅菌及感染控制原則。"],
+ ["常見病原體","常見致病微生物及相關疾病。"]
+],
+
+"微生物學實驗":[
+ ["實驗室安全","無菌操作及生物安全。"],
+ ["顯微鏡操作","顯微鏡構造、使用及觀察。"],
+ ["染色技術","認識常見細菌染色方法。"],
+ ["細菌培養","培養基、接種及菌落觀察。"],
+ ["消毒與滅菌","觀察消毒及滅菌效果。"],
+ ["實驗結果判讀","菌落觀察及基本結果分析。"]
+],
+
+"病理學":[
+ ["病理學概論","病因、發病機轉及疾病分類。"],
+ ["細胞傷害","細胞適應、可逆及不可逆性傷害。"],
+ ["發炎與修復","急性發炎、慢性發炎及組織修復。"],
+ ["循環障礙","水腫、血栓、栓塞及休克。"],
+ ["免疫病理","免疫反應及免疫相關疾病。"],
+ ["感染性疾病","感染造成的組織變化。"],
+ ["腫瘤","良性、惡性腫瘤及癌症轉移。"]
+],
+
+"基本護理學(一)":[
+ ["護理概念","護理定義、護理角色及護理專業發展。"],
+ ["護理理論","護理模式、護理概念及全人照護。"],
+ ["護理過程","評估、診斷、計畫、執行及評值。"],
+ ["感染控制","感染鏈、標準防護措施、洗手及隔離。"],
+ ["生命徵象","體溫、脈搏、呼吸、血壓及疼痛評估。"],
+ ["病人安全","病人辨識、跌倒預防及壓傷預防。"],
+ ["休息與睡眠","睡眠週期、睡眠障礙及休息照護。"],
+ ["舒適與疼痛","疼痛評估及非藥物舒適措施。"]
+],
+
+"基本護理學(二)":[
+ ["給藥護理","給藥原則、途徑及給藥安全。"],
+ ["營養照護","飲食評估、管灌飲食及營養支持。"],
+ ["排泄照護","排尿、排便及相關護理技術。"],
+ ["傷口護理","傷口評估、換藥及敷料選擇。"],
+ ["氧氣治療","氧氣設備、氧療及呼吸照護。"],
+ ["輸液護理","靜脈輸液及輸液觀察。"],
+ ["血液照護","輸血流程、注意事項及輸血反應。"],
+ ["急救概念","基本急救及緊急狀況辨識。"]
+],
+
+"解剖學":[
+ ["人體基本構造","細胞、組織、器官、器官系統及人體方位。"],
+ ["骨骼系統","骨骼分類、骨骼構造、關節及骨骼功能。"],
+ ["肌肉系統","骨骼肌、心肌、平滑肌及肌肉收縮。"],
+ ["神經系統","中樞神經、周邊神經、腦與脊髓。"],
+ ["循環系統","心臟構造、血管及血液循環。"],
+ ["呼吸系統","鼻腔、咽、喉、氣管、支氣管與肺。"],
+ ["消化系統","消化道、肝臟、膽囊及胰臟。"],
+ ["泌尿系統","腎臟、輸尿管、膀胱及尿道。"],
+ ["生殖系統","男性及女性生殖器官構造。"],
+ ["內分泌系統","主要內分泌腺及荷爾蒙分泌。"]
+],
+
+"心理學(一)":[
+ ["心理學概論","心理學的定義、研究方法及主要學派。"],
+ ["感覺與知覺","感覺接收、知覺組織及影響因素。"],
+ ["學習","古典制約、操作制約及觀察學習。"],
+ ["記憶","記憶歷程、遺忘及記憶策略。"]
+],
+
+"心理學(二)":[
+ ["動機與情緒","動機理論、情緒及情緒調節。"],
+ ["人格","人格理論及人格發展。"],
+ ["壓力與適應","壓力來源、壓力反應及因應策略。"],
+ ["心理健康","心理健康、心理困擾及支持資源。"]
+],
+
+"護理導論":[
+ ["護理專業發展","護理歷史、護理角色及專業形象。"],
+ ["護理理論","護理理論及護理概念架構。"],
+ ["護理倫理","自主、不傷害、行善及公平原則。"],
+ ["護理法律","護理人員法、病人權利及法律責任。"],
+ ["全人照護","身體、心理、社會及靈性照護。"],
+ ["慈濟人文與關懷","尊重生命、同理心及人文關懷。"]
+],
+
+"預設":[
+ ["課程基本概念","認識課程目的、重要名詞及核心觀念。"],
+ ["重要知識","整理本課程的理論、原則及主要內容。"],
+ ["實務應用","了解課程內容在生活或護理情境中的應用。"],
+ ["統整複習","整理重點、常見考題及容易混淆的觀念。"]
+]
+
+};
+
+// =========================================
+// 五、二年級以外科目大綱補充
+// =========================================
+
+outlineData["人類發展學"]=[
+ ["發展基本概念","發展原則、遺傳與環境因素。"],
+ ["嬰兒期","身體、認知、語言及社會發展。"],
+ ["幼兒期","動作、認知及心理社會發展。"],
+ ["學齡期","學習、同儕關係及自我概念。"],
+ ["青少年期","青春期變化及身份認同。"],
+ ["成年期","成年初期、中期及晚期發展。"],
+ ["老年期","老化歷程及生命回顧。"]
+];
+
+outlineData["內外科護理學(一)"]=[
+ ["成人護理概論","成人健康問題及護理過程。"],
+ ["水分與電解質","體液平衡、電解質異常及酸鹼平衡。"],
+ ["呼吸系統","氣喘、肺炎及慢性阻塞性肺病。"],
+ ["心血管系統","高血壓、冠狀動脈疾病及心衰竭。"],
+ ["感染與免疫","感染性疾病及免疫系統疾病照護。"]
+];
+
+outlineData["內外科護理學(二)"]=[
+ ["消化系統","胃炎、消化性潰瘍及肝膽疾病。"],
+ ["泌尿系統","腎炎、腎衰竭及泌尿道感染。"],
+ ["內分泌系統","糖尿病及甲狀腺疾病。"],
+ ["神經系統","腦中風、癲癇及神經退化疾病。"],
+ ["肌肉骨骼系統","骨折、關節炎及骨質疏鬆。"],
+ ["手術護理","術前、術中及術後護理。"]
+];
+
+outlineData["產科護理學(一)"]=[
+ ["女性生殖系統","女性生殖構造及生殖功能。"],
+ ["妊娠生理","受精、胚胎發育及孕期變化。"],
+ ["孕期評估","產前檢查、孕婦評估及衛教。"],
+ ["孕期營養","孕期營養需求及生活照護。"],
+ ["高危險妊娠","妊娠相關併發症及護理。"]
+];
+
+outlineData["兒科護理學(一)"]=[
+ ["兒科護理概論","兒童護理原則及兒童權利。"],
+ ["生長與發展","各年齡層生長及發展特徵。"],
+ ["兒童健康評估","兒童身體及發展評估。"],
+ ["兒童營養","嬰幼兒及兒童營養需求。"],
+ ["兒童安全","意外預防及兒童安全照護。"]
+];
+
+outlineData["精神科護理學(一)"]=[
+ ["精神健康概論","精神健康及精神疾病基本概念。"],
+ ["治療性人際關係","溝通技巧、傾聽及同理心。"],
+ ["精神狀態評估","外觀、情緒、思考及知覺評估。"],
+ ["精神科治療","心理治療及藥物治療概念。"],
+ ["焦慮與情緒障礙","焦慮症及情緒相關疾病。"]
+];
+
+outlineData["社區衛生護理學(一)"]=[
+ ["社區衛生概論","社區健康、公共衛生及護理角色。"],
+ ["流行病學","疾病發生、分布及影響因素。"],
+ ["傳染病防治","傳染病監測及預防措施。"],
+ ["環境衛生","空氣、水及環境健康。"],
+ ["健康促進","健康行為及健康促進策略。"]
+];
+
+outlineData["身體評估"]=[
+ ["健康史收集","主訴、現在病史、過去病史及家族史。"],
+ ["一般身體評估","意識、外觀、姿勢及生命徵象。"],
+ ["皮膚評估","膚色、溫度、濕度及皮膚完整性。"],
+ ["頭頸部評估","頭部、眼睛、耳朵、鼻及口腔。"],
+ ["胸肺評估","視診、觸診、叩診及聽診。"],
+ ["心血管評估","心音、脈搏及周邊循環。"],
+ ["腹部評估","腹部視診、聽診、叩診及觸診。"],
+ ["神經評估","意識、瞳孔、肌力及感覺。"]
+];
+
+// =========================================
+// 六、題庫
+// =========================================
+
+const questionBank={
+
+ "解剖學":[
+  {q:"人體構造與功能的基本單位為何？",
+   o:["組織","細胞","器官","器官系統"],a:1,
+   e:"細胞是人體構造與功能的基本單位。"},
+  {q:"肌節是從哪一條線到哪一條線？",
+   o:["A帶到A帶","I帶到I帶","Z線到Z線","H帶到H帶"],a:2,
+   e:"肌節是兩條Z線之間的區域。"},
+  {q:"下列何者屬於隨意肌？",
+   o:["心肌","平滑肌","骨骼肌","以上皆是"],a:2,
+   e:"骨骼肌通常受到意識控制，屬於隨意肌。"}
+ ],
+
+ "生理學":[
+  {q:"人體正常心臟共有幾個腔室？",
+   o:["2個","3個","4個","5個"],a:2,
+   e:"心臟包含右心房、右心室、左心房及左心室。"},
+  {q:"腎臟形成尿液的基本功能單位為何？",
+   o:["神經元","腎元","肺泡","肝小葉"],a:1,
+   e:"腎元是腎臟的結構與功能單位。"},
+  {q:"神經元傳遞訊息的基本電位變化稱為？",
+   o:["動作電位","血壓","滲透壓","膠體壓"],a:0,
+   e:"動作電位是神經訊息傳遞的重要基礎。"}
+ ],
+
+ "營養學":[
+  {q:"下列哪一項是人體主要的能量來源之一？",
+   o:["醣類","水","礦物質","維生素"],a:0,
+   e:"醣類是人體重要的能量來源。"},
+  {q:"蛋白質的基本組成單位為何？",
+   o:["脂肪酸","胺基酸","葡萄糖","甘油"],a:1,
+   e:"蛋白質由胺基酸組成。"}
+ ],
+
+ "藥物學(一)":[
+  {q:"藥物動力學ADME不包含哪一項？",
+   o:["吸收","分布","代謝","診斷"],a:3,
+   e:"ADME代表吸收、分布、代謝及排泄。"},
+  {q:"藥物經由肝臟轉變的過程通常稱為？",
+   o:["吸收","代謝","分布","排泄"],a:1,
+   e:"肝臟是藥物代謝的重要器官。"}
+ ],
+
+ "藥物學(二)":[
+  {q:"抗生素主要用於治療哪一類感染？",
+   o:["細菌感染","所有病毒感染","所有過敏","所有外傷"],a:0,
+   e:"抗生素主要針對細菌感染，不能用來治療所有病毒感染。"}
+ ],
+
+ "微生物學":[
+  {q:"細菌屬於哪一類生物？",
+   o:["原核生物","真核生物","多細胞動物","植物"],a:0,
+   e:"細菌屬於原核生物。"},
+  {q:"下列何者不是細菌的基本構造？",
+   o:["細胞壁","細胞膜","核糖體","粒線體"],a:3,
+   e:"細菌沒有粒線體等膜狀胞器。"}
+ ],
+
+ "病理學":[
+  {q:"下列何者為典型發炎表現？",
+   o:["紅","腫","熱","以上皆是"],a:3,
+   e:"發炎典型表現包括紅、腫、熱、痛及功能喪失。"}
+ ],
+
+ "基本護理學(一)":[
+  {q:"護理過程的第一個步驟是什麼？",
+   o:["護理診斷","計畫","評估","執行"],a:2,
+   e:"護理過程首先進行評估，收集病人資料。"},
+  {q:"預防感染最基本且重要的方法為何？",
+   o:["戴帽子","正確洗手","關閉窗戶","穿鞋套"],a:1,
+   e:"正確洗手是預防感染的重要措施。"}
+ ],
+
+ "基本護理學(二)":[
+  {q:"給藥前最重要的原則之一是什麼？",
+   o:["不需核對藥物","確認病人身分","只看床號","先給藥再紀錄"],a:1,
+   e:"給藥前必須確認病人身分及相關給藥安全原則。"}
+ ],
+
+ "護理導論":[
+  {q:"護理倫理中的自主原則主要尊重什麼？",
+   o:["病人的自主決定","醫護人員方便","醫院收入","家屬所有決定"],a:0,
+   e:"自主原則重視病人了解資訊後做出自己的決定。"}
+ ],
+
+ "心理學(一)":[
+  {q:"心理學主要研究什麼？",
+   o:["行為與心理歷程","只有人體構造","只有藥物作用","只有疾病治療"],a:0,
+   e:"心理學研究行為及心理歷程。"}
+ ],
+
+ "心理學(二)":[
+  {q:"面對壓力時，適當的因應方式為何？",
+   o:["完全否認問題","尋求支持及適當調適","傷害自己","拒絕所有協助"],a:1,
+   e:"尋求支持及使用健康的調適策略有助於壓力管理。"}
+ ]
+
+};
+
+// =========================================
+// 七、畫面控制
+// =========================================
+
+let grade=1;
+let semester=1;
+let currentSubject="";
+let currentCategory="";
+let currentQuestions=[];
+let answers={};
+
+let records=JSON.parse(localStorage.getItem("tcu114Records")||"[]");
+let mistakes=JSON.parse(localStorage.getItem("tcu114Mistakes")||"[]");
+
+function save(){
+ localStorage.setItem("tcu114Records",JSON.stringify(records));
+ localStorage.setItem("tcu114Mistakes",JSON.stringify(mistakes));
+}
+
+function page(id){
+ document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ window.scrollTo(0,0);
+}
+
+function home(){page("homePage")}
+function backSubjects(){showSubjects(grade)}
+function backCourse(){openCourse(currentSubject,currentCategory)}
+
+// =========================================
+// 八、首頁年級選擇
+// =========================================
+
+function renderGrades(){
+ const box=document.getElementById("gradeList");
+ box.innerHTML="";
+
+ for(let y=1;y<=5;y++){
+  let count=courses.filter(x=>x.y===y).length+
+   practicums.filter(x=>x.y===y).length;
+
+  box.innerHTML+=`
+   <div class="card grade-card" onclick="showSubjects(${y})">
+    <div class="grade-number">0${y}</div>
+    <h3>${["一年級","二年級","三年級","四年級","五年級"][y-1]}</h3>
+    <p class="muted">${count} 個必修科目項目</p>
+    <span class="tag">進入課程 →</span>
+   </div>
+  `;
+ }
+}
+
+// =========================================
+// 九、科目列表與上下學期
+// =========================================
+
+function showSubjects(y){
+ grade=y;
+ semester=1;
+ document.getElementById("gradeTitle").textContent=
+  `📚 ${y} 年級｜114級課程`;
+
+ document.getElementById("search").value="";
+ setTabStyle();
+ renderSubjects();
+ page("subjectPage");
+}
+
+function setSemester(s){
+ semester=s;
+ setTabStyle();
+ renderSubjects();
+}
+
+function setTabStyle(){
+ document.getElementById("firstTab").classList.toggle("active",semester===1);
+ document.getElementById("secondTab").classList.toggle("active",semester===2);
+ document.getElementById("electiveTab").classList.toggle("active",semester===3);
+}
+
+function renderSubjects(){
+ const box=document.getElementById("subjectList");
+ const keyword=document.getElementById("search").value.trim();
+ box.innerHTML="";
+
+ let list=[];
+
+ if(semester===3){
+  list=electives.filter(x=>x.y===grade);
+ }else{
+  list=courses.filter(x=>x.y===grade&&x.s===semester)
+   .concat(practicums.filter(x=>x.y===grade&&x.s===semester));
+ }
+
+ list=list.filter(x=>x.n.includes(keyword));
+
+ if(!list.length){
+  box.innerHTML="<p class='muted'>這個學期沒有符合的科目。</p>";
+  return;
+ }
+
+ const categories=[...new Set(list.map(x=>x.t||"專業選修"))];
+
+ categories.forEach(category=>{
+  box.innerHTML+=`<h2>${category}</h2><div class="grid" id="group-${category}"></div>`;
+
+  const group=document.getElementById("group-"+category);
+
+  list.filter(x=>(x.t||"專業選修")===category).forEach(item=>{
+   group.innerHTML+=`
+    <div class="card subject-card"
+     onclick="openCourse('${item.n}','${item.t||"專業選修"}',${item.c})">
+     <span class="tag">${item.t||"專業選修"}</span>
+     <h3>${item.n}</h3>
+     <p>${item.c} 學分 ${item.group?"｜"+item.group:""}</p>
+     <p class="muted">查看課程大綱 →</p>
+    </div>
+   `;
+  });
+ });
+}
+
+// =========================================
+// 十、課程內容
+// =========================================
+
+function openCourse(name,category,credit){
+ currentSubject=name;
+ currentCategory=category;
+
+ document.getElementById("courseTitle").textContent=name;
+ document.getElementById("courseCategory").textContent=category;
+ document.getElementById("courseMeta").textContent=
+  `${grade} 年級｜${semester===3?"選修課程":semester===1?"上學期":"下學期"}｜${credit} 學分`;
+
+ let intro=`本課程為慈濟大學五專護理科114級課程。透過理論學習與專業知識整理，建立相關學科基礎。`;
+
+ if(name.includes("實習")||name.includes("實驗")||name.includes("實作")){
+  intro="透過實際操作、技能練習及情境應用，培養專業能力與安全照護觀念。";
+ }
+
+ document.getElementById("courseIntro").textContent=intro;
+
+ let outline=outlineData[name]||outlineData["預設"];
+
+ document.getElementById("outline").innerHTML=outline.map((item,i)=>`
+  <div class="lesson">
+   <h3>第 ${i+1} 單元｜${item[0]}</h3>
+   <p>${item[1]}</p>
+  </div>
+ `).join("");
+
+ document.getElementById("goals").innerHTML=`
+  <ul>
+   <li>了解 ${name} 的基本概念及重要知識。</li>
+   <li>能整理課程中的重要內容。</li>
+   <li>能將所學知識連結護理專業。</li>
+   <li>培養自主學習及持續複習的能力。</li>
+  </ul>
+ `;
+
+ page("coursePage");
+}
+
+// =========================================
+// 十一、測驗
+// =========================================
+
+function startQuiz(){
+ currentQuestions=questionBank[currentSubject]||[];
+ answers={};
+
+ document.getElementById("quizResult").innerHTML="";
+ document.getElementById("submitButton").disabled=false;
+
+ document.getElementById("quizInfo").textContent=
+  currentSubject+"｜"+currentQuestions.length+" 題";
+
+ if(!currentQuestions.length){
+  document.getElementById("quizContent").innerHTML=`
+   <div class="card">
+    <h3>此科目題庫尚未建立</h3>
+    <p class="muted">目前已有課程大綱，正式題庫可以繼續新增。</p>
+   </div>
+  `;
+  document.getElementById("submitButton").disabled=true;
+ }else{
+  renderQuiz();
+ }
+
+ page("quizPage");
+}
+
+function renderQuiz(){
+ document.getElementById("quizContent").innerHTML=
+ currentQuestions.map((q,i)=>`
+  <div class="card" style="margin:14px 0">
+   <h3>第 ${i+1} 題：${q.q}</h3>
+   ${q.o.map((op,j)=>`
+    <button class="option ${answers[i]===j?"selected":""}"
+     onclick="selectAnswer(${i},${j})">
+     ${String.fromCharCode(65+j)}. ${op}
+    </button>
+   `).join("")}
+  </div>
+ `).join("");
+}
+
+function selectAnswer(i,j){
+ answers[i]=j;
+ renderQuiz();
+}
+
+function submitQuiz(){
+ let score=0;
+ let detail="";
+
+ currentQuestions.forEach((q,i)=>{
+  const correct=answers[i]===q.a;
+  if(correct)score++;
+
+  if(!correct){
+   if(!mistakes.some(m=>m.subject===currentSubject&&m.question===q.q)){
+    mistakes.push({
+     subject:currentSubject,
+     question:q.q,
+     options:q.o,
+     answer:q.a,
+     explain:q.e
+    });
+   }
+  }
+
+  detail+=`
+   <div class="card" style="margin:12px 0">
+    <h3>${correct?"✅ 答對":"❌ 答錯"}｜第 ${i+1} 題</h3>
+    <p>正確答案：${q.o[q.a]}</p>
+    <p>解析：${q.e}</p>
+   </div>
+  `;
+ });
+
+ const total=currentQuestions.length;
+ const percent=Math.round(score/total*100);
+
+ records.push({
+  grade,subject:currentSubject,score:percent,
+  date:new Date().toLocaleString()
+ });
+
+ save();
+
+ document.getElementById("quizResult").innerHTML=`
+  <div class="result">
+   <h2>測驗完成</h2>
+   <div class="stat">${percent} 分</div>
+   <p>答對 ${score} 題，共 ${total} 題。</p>
+  </div>
+  <h2>答案與解析</h2>
+  ${detail}
+ `;
+
+ document.getElementById("submitButton").disabled=true;
+}
+
+// =========================================
+// 十二、學習紀錄
+// =========================================
+
+function showRecords(){
+ page("recordPage");
+
+ const count=records.length;
+ const avg=count?
+  Math.round(records.reduce((s,r)=>s+r.score,0)/count):0;
+
+ document.getElementById("recordCount").textContent=count;
+ document.getElementById("recordAverage").textContent=avg;
+ document.getElementById("recordMistakes").textContent=mistakes.length;
+
+ document.getElementById("recordList").innerHTML=
+ count?records.slice().reverse().map(r=>`
+  <div class="card" style="margin:12px 0">
+   <strong>${r.grade}年級｜${r.subject}</strong>
+   <p>成績：${r.score} 分</p>
+   <p class="small">${r.date}</p>
+  </div>
+ `).join(""):"<p class='muted'>目前還沒有測驗紀錄。</p>";
+}
+
+// =========================================
+// 十三、錯題本
+// =========================================
+
+function showMistakes(){
+ page("mistakePage");
+
+ document.getElementById("mistakeList").innerHTML=
+ mistakes.length?mistakes.map((m,i)=>`
+  <div class="card" style="margin:13px 0">
+   <span class="tag">${m.subject}</span>
+   <h3>${m.question}</h3>
+   <p>正確答案：${m.options[m.answer]}</p>
+   <p>解析：${m.explain}</p>
+   <button class="secondary" onclick="deleteMistake(${i})">移除錯題</button>
+  </div>
+ `).join(""):"<p class='muted'>目前沒有錯題。</p>";
+}
+
+function deleteMistake(i){
+ mistakes.splice(i,1);
+ save();
+ showMistakes();
+}
+
+// =========================================
+// 十四、啟動
+// =========================================
+
+renderGrades();
+
+</script>
+</body>
+</html>
