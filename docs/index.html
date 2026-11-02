@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -16,7 +16,27 @@ header{
  display:flex;justify-content:space-between;
  align-items:center;flex-wrap:wrap;gap:12px
 }
-header h2{margin:0;font-size:20px}
+.brand{
+ display:flex;align-items:center;gap:12px;min-width:0
+}
+.brand-mark{
+ width:46px;height:46px;flex:0 0 46px;
+ display:grid;place-items:center;border-radius:14px;
+ background:linear-gradient(145deg,#ffffff,#dcecf5);
+ box-shadow:0 3px 10px #071d302e
+}
+.brand-mark svg{width:31px;height:31px;display:block}
+.brand h2{margin:0;font-size:20px;letter-spacing:.5px}
+.brand small{
+ display:block;margin-top:3px;color:#c8d9e6;
+ font-size:11px;letter-spacing:1.2px
+}
+@media(max-width:520px){
+ header{padding:14px 5%}
+ .brand h2{font-size:16px}
+ .brand-mark{width:42px;height:42px;flex-basis:42px}
+ nav button{padding:8px 10px}
+}
 nav button{
  background:transparent;color:white;border:1px solid #9bb1c5;
  border-radius:7px;padding:9px 12px;margin:3px;cursor:pointer
@@ -93,7 +113,18 @@ footer{text-align:center;color:#8794a1;padding:35px}
 <body>
 
 <header>
- <h2>✚ 慈濟五專護理科｜114級</h2>
+ <div class="brand">
+  <div class="brand-mark" aria-hidden="true">
+   <svg viewBox="0 0 64 64" role="img">
+    <path d="M32 55S8 41 8 23C8 13 20 8 28 17l4 5 4-5c8-9 20-4 20 6 0 18-24 32-24 32Z" fill="#d95f70"/>
+    <path d="M27 18h10v9h9v10h-9v9H27v-9h-9V27h9z" fill="#ffffff"/>
+   </svg>
+  </div>
+  <div>
+   <h2>慈濟五專護理科｜114級</h2>
+   <small>NURSING LEARNING HUB</small>
+  </div>
+ </div>
  <nav>
   <button onclick="home()">首頁</button>
   <button onclick="showRecords()">學習紀錄</button>
@@ -226,8 +257,7 @@ const courses = [
  {y:2,s:2,n:"英文(四)",c:3,t:"一般必修"},
  {y:2,s:1,n:"資訊科技",c:2,t:"一般必修"},
  {y:2,s:1,n:"歷史",c:2,t:"一般必修"},
- {y:2,s:2,n:"物理",c:2,t:"一般必修"},
- {y:2,s:2,n:"法律與生活",c:2,t:"一般必修"},
+ {y:2,s:2,n:"物理",c:2,t:"一般必修"}, {y:2,s:2,n:"法律與生活",c:2,t:"一般必修"},
  {y:2,s:1,n:"體育(三)",c:2,t:"一般必修"},
  {y:2,s:2,n:"體育(四)",c:2,t:"一般必修"},
 
@@ -486,8 +516,7 @@ const outlineData={
  ["心理健康","心理健康、心理困擾及支持資源。"]
 ],
 
-"護理導論":[
- ["護理專業發展","護理歷史、護理角色及專業形象。"],
+"護理導論":[ ["護理專業發展","護理歷史、護理角色及專業形象。"],
  ["護理理論","護理理論及護理概念架構。"],
  ["護理倫理","自主、不傷害、行善及公平原則。"],
  ["護理法律","護理人員法、病人權利及法律責任。"],
@@ -746,8 +775,7 @@ function showSubjects(y){
 
  document.getElementById("search").value="";
  setTabStyle();
- renderSubjects();
- page("subjectPage");
+ renderSubjects(); page("subjectPage");
 }
 
 function setSemester(s){
